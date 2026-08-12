@@ -11,7 +11,11 @@ param(
     [switch]$SkipUvInstall,
 
     [Parameter()]
-    [switch]$SkipPathUpdate
+    [switch]$SkipPathUpdate,
+
+    [Parameter(DontShow = $true)]
+    [ValidatePattern('^[0-9a-f]{40}$')]
+    [string]$AcceptanceCommit
 )
 
 $ErrorActionPreference = 'Stop'
@@ -125,7 +129,14 @@ if ($Repository -notmatch '^https://github\.com/[^/]+/[^/]+/?$') {
 
 $repositoryUri = [Uri]$Repository.TrimEnd('/')
 $repository = $repositoryUri.AbsoluteUri.TrimEnd('/')
-$source = "git+$repository@$Version"
+$sourceRef = if ([string]::IsNullOrWhiteSpace($AcceptanceCommit)) {
+    $Version
+}
+else {
+    Write-Step "Acceptance mode: installing the audited commit $AcceptanceCommit."
+    $AcceptanceCommit
+}
+$source = "git+$repository@$sourceRef"
 $expectedVersion = $Version.TrimStart('v')
 
 $script:UvExecutable = Resolve-UvExecutable
