@@ -18,6 +18,16 @@ irm https://raw.githubusercontent.com/CIA-Dao/rookie-agent/v0.0.2/scripts/instal
 Remove-Item .\install-rookie-agent.ps1
 ```
 
+If PowerShell blocks the script because of the execution policy, allow scripts
+temporarily in the current PowerShell window, then run the installer again:
+
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+```
+
+This setting applies only to the current PowerShell process and is discarded
+when that window is closed. Do not change the machine-wide execution policy.
+
 The installer bootstraps `uv` if needed, installs a non-editable tagged
 revision directly from a GitHub archive, updates the user PATH, and verifies
 the command. It does not require Git, ask for an API key, or handle an API key.
