@@ -19,8 +19,8 @@ Remove-Item .\install-rookie-agent.ps1
 ```
 
 The installer bootstraps `uv` if needed, installs a non-editable tagged
-revision, updates the user PATH, and verifies the command. It does not ask for
-or handle an API key.
+revision directly from a GitHub archive, updates the user PATH, and verifies
+the command. It does not require Git, ask for an API key, or handle an API key.
 
 The installer also handles existing installations conservatively:
 

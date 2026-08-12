@@ -136,7 +136,7 @@ else {
     Write-Step "Acceptance mode: installing the audited commit $AcceptanceCommit."
     $AcceptanceCommit
 }
-$source = "git+$repository@$sourceRef"
+$source = "$repository/archive/$sourceRef.zip"
 $expectedVersion = $Version.TrimStart('v')
 
 $script:UvExecutable = Resolve-UvExecutable
