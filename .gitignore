@@ -1,0 +1,53 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv/
+
+# uv and local dependency caches
+.uv-cache/
+.uv-cache-*/
+
+# Temporary npm/npx cache used by local tooling
+.tmp-npm-cache/
+
+# Runtime logs, traces, and generated session artifacts
+runs/
+
+# Local configuration and secrets
+.env
+!.env.example
+
+# Local agent/tool state
+.agents/
+.codex/
+.my-agent/
+.superpowers/
+
+# Internal handoff, implementation history, and local planning
+AGENT-PRODUCT-MEMORY.md
+AGENTS.md
+OPENCODE_HANDOFF.md
+S*_SUMMARY.md
+S0_S2_REVIEW.md
+TASK_REPORT.md
+TODO.md
+docs/requirements/
+docs/superpowers/
+
+# Operating-system and editor metadata
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
