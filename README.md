@@ -1,11 +1,40 @@
 # Rookie Agent
 
+[English](README.md) | [简体中文](README.zh-CN.md)
+
 Rookie Agent is a local coding agent for working in real project folders. It
 uses a background Core process and a terminal UI or CLI client, so sessions,
 tools, permissions, and event history remain observable and recoverable.
 
 The public product name is **Rookie Agent**. The current command-line entry
 points remain `my-agent`, `my-agent-tui`, and `my-agent-core` for compatibility.
+
+## Screenshots
+
+Ready to work:
+
+![Rookie Agent terminal UI connected and ready](docs/assets/screenshots/02-ready-home.png)
+
+First-launch API key setup and model selection:
+
+![DeepSeek API key setup dialog](docs/assets/screenshots/03-api-key-setup.png)
+
+![DeepSeek model selection dialog](docs/assets/screenshots/04-model-selection.png)
+
+Agent response:
+
+![Rookie Agent response in the terminal UI](docs/assets/screenshots/07-agent-response.png)
+
+<details>
+<summary>More screenshots</summary>
+
+![Connecting to the local Core](docs/assets/screenshots/01-core-connecting.png)
+
+![Settings saved](docs/assets/screenshots/05-settings-saved.png)
+
+![Agent working](docs/assets/screenshots/06-agent-working.png)
+
+</details>
 
 ## Install on Windows
 
