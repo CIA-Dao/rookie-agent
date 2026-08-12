@@ -19,9 +19,24 @@ class _FakeProc:
     def __init__(self, pid: int, poll_value: int | None = None) -> None:
         self.pid = pid
         self._poll_value = poll_value
+        self.terminate_calls = 0
+        self.kill_calls = 0
+        self.wait_calls: list[float | None] = []
 
     def poll(self) -> int | None:
         return self._poll_value
+
+    def terminate(self) -> None:
+        self.terminate_calls += 1
+        self._poll_value = 0
+
+    def kill(self) -> None:
+        self.kill_calls += 1
+        self._poll_value = -9
+
+    def wait(self, timeout: float | None = None) -> int:
+        self.wait_calls.append(timeout)
+        return self._poll_value or 0
 
 
 # ---------------------------------------------------------------------------
@@ -187,8 +202,10 @@ async def test_ensure_core_started_timeout_cleans_pid_and_returns_failed(
     async def fake_probe(host: str, port: int) -> CoreProbeResult:
         raise ConnectionRefusedError("connection refused")
 
+    proc = _FakeProc(pid=99999)
+
     def fake_spawn(*args: Any, **kwargs: Any) -> _FakeProc:
-        return _FakeProc(pid=99999)
+        return proc
 
     async def fake_wait(
         proc: Any,
@@ -220,6 +237,47 @@ async def test_ensure_core_started_timeout_cleans_pid_and_returns_failed(
     assert result.exit_code is None
     assert not pid_file.exists()
     assert result.missing_deepseek_key is False
+    assert proc.terminate_calls == 1
+    assert proc.wait_calls == [2.0]
+
+
+async def test_ensure_core_started_timeout_final_probe_recovers_boundary_race(
+    monkeypatch: MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    ready = CoreProbeResult(server_version="0.0.2", uptime_ms=1, latency_ms=1)
+    probe_calls = {"count": 0}
+    proc = _FakeProc(pid=77777)
+
+    async def fake_probe(host: str, port: int) -> CoreProbeResult:
+        probe_calls["count"] += 1
+        if probe_calls["count"] == 1:
+            raise ConnectionRefusedError("connection refused")
+        return ready
+
+    async def fake_wait(*args: Any, **kwargs: Any) -> CoreProbeResult:
+        raise TimeoutError("core crossed the polling deadline")
+
+    monkeypatch.setattr("my_agent.core.lifecycle.probe_core", fake_probe)
+    monkeypatch.setattr("my_agent.core.lifecycle._spawn_core_process", lambda **kwargs: proc)
+    monkeypatch.setattr(
+        "my_agent.core.lifecycle.wait_for_core_ready_with_proc",
+        fake_wait,
+    )
+
+    pid_file = tmp_path / "core.pid"
+    result = await ensure_core_started(
+        "127.0.0.1",
+        7437,
+        pid_file=pid_file,
+        startup_log_file=tmp_path / "startup.err.log",
+    )
+
+    assert isinstance(result, CoreStartOk)
+    assert result.pid == 77777
+    assert result.ready == ready
+    assert pid_file.read_text(encoding="utf-8") == "77777\n"
+    assert proc.terminate_calls == 0
 
 
 async def test_ensure_core_started_spawn_oserror_returns_failed_spawn_error(

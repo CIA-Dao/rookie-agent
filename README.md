@@ -13,8 +13,8 @@ The supported friend-install path is a version-pinned GitHub installer. Run
 the installer from a trusted release tag:
 
 ```powershell
-irm https://raw.githubusercontent.com/CIA-Dao/rookie-agent/v0.0.1/scripts/install.ps1 -OutFile install-rookie-agent.ps1
-.\install-rookie-agent.ps1 -Version v0.0.1
+irm https://raw.githubusercontent.com/CIA-Dao/rookie-agent/v0.0.2/scripts/install.ps1 -OutFile install-rookie-agent.ps1
+.\install-rookie-agent.ps1 -Version v0.0.2
 Remove-Item .\install-rookie-agent.ps1
 ```
 
@@ -40,7 +40,7 @@ should leave this switch off.
 The installer can also be run from a checked-out copy:
 
 ```powershell
-.\scripts\install.ps1 -Version v0.0.1
+.\scripts\install.ps1 -Version v0.0.2
 ```
 
 Open a new terminal after installation, then run:

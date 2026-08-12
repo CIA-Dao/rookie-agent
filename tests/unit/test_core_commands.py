@@ -192,10 +192,23 @@ class _FakeProc:
 
     def __init__(self, pid: int) -> None:
         self.pid = pid
+        self.terminate_calls = 0
+        self.kill_calls = 0
+        self.wait_calls: list[float | None] = []
 
     def poll(self) -> int | None:
         # None 表示进程仍在运行
         return None
+
+    def terminate(self) -> None:
+        self.terminate_calls += 1
+
+    def kill(self) -> None:
+        self.kill_calls += 1
+
+    def wait(self, timeout: float | None = None) -> int:
+        self.wait_calls.append(timeout)
+        return 0
 
 
 # ---------------------------------------------------------------------------

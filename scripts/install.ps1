@@ -5,7 +5,7 @@ param(
 
     [Parameter()]
     [ValidatePattern('^v[0-9]+\.[0-9]+\.[0-9]+$')]
-    [string]$Version = 'v0.0.1',
+    [string]$Version = 'v0.0.2',
 
     [Parameter()]
     [switch]$SkipUvInstall,

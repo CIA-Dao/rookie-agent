@@ -99,7 +99,7 @@ def cmd_core_status(host: str, port: int) -> None:
 DEFAULT_CORE_PID_FILE = Path("~/.my-agent/my-agent-core.pid").expanduser()
 
 # 启动后等待 ready 的总时间。
-DEFAULT_READY_TIMEOUT_S = 5.0
+DEFAULT_READY_TIMEOUT_S = 15.0
 
 # daemon 子进程 stderr 重定向到这里，便于 ready 前退出时诊断真实原因
 DEFAULT_CORE_STARTUP_LOG_FILE = Path("~/.my-agent/logs/core-startup.err.log").expanduser()

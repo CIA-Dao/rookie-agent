@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import subprocess
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
@@ -46,6 +47,18 @@ class CoreStartFailed:
     @property
     def missing_deepseek_key(self) -> bool:
         return "DEEPSEEK_API_KEY not set" in self.stderr_tail
+
+
+def _stop_spawned_process(proc: subprocess.Popen[bytes]) -> None:
+    """Stop a Core process owned by this bootstrap attempt."""
+    if proc.poll() is not None:
+        return
+    proc.terminate()
+    try:
+        proc.wait(timeout=2.0)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        proc.wait(timeout=2.0)
 
 
 async def ensure_core_started(
@@ -121,14 +134,28 @@ async def ensure_core_started(
             startup_log_file=startup_log_file,
         )
     except TimeoutError:
-        _safe_unlink(pid_file)
-        stderr_tail = _read_text_tail(startup_log_file)
-        return CoreStartFailed(
+        # A cold installed environment can cross the polling deadline while
+        # Core is becoming reachable. Probe once more before declaring a
+        # timeout so the boundary race does not produce a false failure.
+        try:
+            ready = await probe_core(host, port)
+        except (ConnectionRefusedError, CoreProbeError, OSError, TimeoutError):
+            _stop_spawned_process(proc)
+            _safe_unlink(pid_file)
+            stderr_tail = _read_text_tail(startup_log_file)
+            return CoreStartFailed(
+                host=host,
+                port=port,
+                reason="timeout",
+                stderr_tail=stderr_tail,
+                startup_log_file=startup_log_file,
+            )
+        return CoreStartOk(
+            pid=pid,
             host=host,
             port=port,
-            reason="timeout",
-            stderr_tail=stderr_tail,
-            startup_log_file=startup_log_file,
+            ready=ready,
+            already_running=False,
         )
 
     return CoreStartOk(
